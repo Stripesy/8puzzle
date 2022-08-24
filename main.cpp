@@ -47,7 +47,7 @@ int main() {
     for(int i = 1; i < allSamplesVector.size(); i++) {
     Puzzle puzzle(allSamplesVector[i], allSamplesVector[0]);
     Puzzle solved = aStar(puzzle, gSVector[i]);
-    //printPath(&solved);
+    printPath(&solved);
     }
 }
 
@@ -72,7 +72,6 @@ Puzzle aStar(Puzzle puzzle, int numIteration) {
     while(!openSet.empty()) {
         current = *openSet.begin();
         openSet.erase(openSet.begin());
-        closedSet.insert(current);
         if(current.boardLayout == current.goalLayout) {
             std::cout << "Solution found in : " << current.depth << "\nExpected: " << numIteration << std::endl;
             return current;
@@ -95,21 +94,20 @@ Puzzle aStar(Puzzle puzzle, int numIteration) {
                 temp = pushRight(current);
                 break;
         }
-        if(openSet.find(temp) != openSet.end() && (openSet.find(temp)->fscore < temp.fscore)) { // check if temp is in open set or better fscore
+        if((openSet.find(temp) != openSet.end()) || (openSet.find(temp) != openSet.end() && (openSet.find(temp)->fscore < temp.fscore))) { 
+            // check if temp is in open set or better fscore
             continue;
         }
-        else if((closedSet.find(temp) != closedSet.end()) && (closedSet.find(temp)->fscore < temp.fscore)) { // check if in closed set or better fscore
+        else if((closedSet.find(temp) != closedSet.end()) || (closedSet.find(temp) != closedSet.end() && (closedSet.find(temp)->fscore < temp.fscore))) { 
+            // check if in closed set or better fscore
             continue;
         }
         else {
             temp.parent = new Puzzle(current);
             openSet.insert(temp);
         }
+        closedSet.insert(current);
         }
-
-
-
-
     }
     return puzzle; //search failed
 }
