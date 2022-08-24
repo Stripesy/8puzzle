@@ -7,12 +7,14 @@ class Puzzle {
     int depth = 0;
     int fscore;
 public:
+    Puzzle *parent = NULL;
     int heuristic;
     Puzzle(std::vector<int> sample, std::vector<int> target) {
         boardLayout = sample;
         goalLayout = target;
         heuristic = manDistance();
         fscore = 0;
+        parent = new Puzzle(*this);
 
         for(int i = 0; i < boardLayout.size(); i++) {
             if(boardLayout[i] == 0) {
@@ -28,6 +30,7 @@ public:
         heuristic = manDistance();
         depth = puzzle.depth;
         fscore = heuristic + depth;
+        parent = puzzle.parent;
 
         for(int i = 0; i < boardLayout.size(); i++) {
             if(boardLayout[i] == 0) {
@@ -90,7 +93,7 @@ void Puzzle::up() {
         playerPos = playerPos - rows;
         depth+=1;
     }
-    heuristic = manDistance();
+    fscore = manDistance() + depth;
 }
 
 void Puzzle::down() {
@@ -100,7 +103,7 @@ void Puzzle::down() {
         playerPos = playerPos + rows;
         depth+=1;
     }
-    heuristic = manDistance();
+    fscore = manDistance() + depth;
 }
 
 void Puzzle::left() {
@@ -110,7 +113,7 @@ void Puzzle::left() {
         playerPos = playerPos - 1;
         depth+=1;
     }
-    heuristic = manDistance();
+    fscore = manDistance() + depth;
 }
 
 void Puzzle::right() {
@@ -120,6 +123,6 @@ void Puzzle::right() {
         playerPos = playerPos + 1;
         depth+=1;
     }
-    heuristic = manDistance();
+    fscore = manDistance() + depth;
 
 }

@@ -26,20 +26,17 @@ struct cmp
 };
 
 bool operator<(const Puzzle& lhs, const Puzzle& rhs) {
-    if(lhs.fscore != rhs.fscore)
-        return !(lhs.fscore < rhs.fscore);
-    else return !(lhs.depth < rhs.depth);
+    return !(lhs.fscore < rhs.fscore);
 }
 
 
 std::vector<std::vector<int>> readSamples(std::vector<int> &gSVector);
-void aStar(Puzzle puzzle);
+Puzzle aStar(Puzzle puzzle, int numIteration);
+void printPath(Puzzle *puzzle);
 Puzzle pushUp(Puzzle puzzle);
 Puzzle pushDown(Puzzle puzzle);
 Puzzle pushLeft(Puzzle puzzle);
 Puzzle pushRight(Puzzle puzzle);
-
-void aStar();
 
 int main() {
     std::vector<int> gSVector;
@@ -47,22 +44,36 @@ int main() {
 
     for(int i = 1; i < allSamplesVector.size(); i++) {
     Puzzle puzzle(allSamplesVector[i], allSamplesVector[0]);
-    aStar(puzzle);
+    Puzzle solved = aStar(puzzle, gSVector[i]);
+    printPath(&solved);
     }
 }
 
-void aStar(Puzzle puzzle) {
+void printPath(Puzzle *puzzle) {
+    if(puzzle->parent == NULL) {
+        return;
+    }
+    else {
+        printPath(puzzle->parent);
+        puzzle->printBoard();
+
+    }
+        
+}
+
+Puzzle aStar(Puzzle puzzle, int numIteration) {
     std::set<Puzzle, cmp> closedSet;
     std::priority_queue<Puzzle> openSet;
     // Update to unordered map?
     std::set<Puzzle, cmp> openSetSet;
-    Puzzle current(puzzle);
+    Puzzle current(puzzle); 
     openSet.push(puzzle);
     while(openSet.size() > 0) {
         current = openSet.top();
 
         if(current.checkWin()) {
-            std::cout << "Solution found in : " << current.depth << std::endl;
+            std::cout << "Solution found in : " << current.depth << "\nExpected: " << numIteration << std::endl;
+            puzzle = current;
             break;
         }
 
@@ -70,31 +81,46 @@ void aStar(Puzzle puzzle) {
     if(closedSet.find(current) == closedSet.end())
         closedSet.insert(current);
 
-    if(closedSet.find(pushUp(current)) == closedSet.end()) {
-        if(openSetSet.find(pushUp(current)) == openSetSet.end()) {
-            openSet.push(pushUp(current));
-            openSetSet.insert(pushUp(current));
+    Puzzle temp(current);
+    std::set<Puzzle>::iterator openIt;
+    temp = pushUp(current);
+    openIt = openSetSet.find(temp);
+    if(closedSet.find(temp) == closedSet.end()) {
+        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
+            temp.parent = new Puzzle(current);
+            openSet.push(temp);
+            openSetSet.insert(temp);
         }
     }
-    if(closedSet.find(pushDown(current)) == closedSet.end()) {
-        if(openSetSet.find(pushDown(current)) == openSetSet.end()) {
-            openSet.push(pushDown(current));
-            openSetSet.insert(pushDown(current));
+    temp = pushDown(current);
+    openIt = openSetSet.find(temp);
+    if(closedSet.find(temp) == closedSet.end()) {
+        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
+            temp.parent = new Puzzle(current);
+            openSet.push(temp);
+            openSetSet.insert(temp);
         }
     }
-    if(closedSet.find(pushLeft(current)) == closedSet.end()) {
-        if(openSetSet.find(pushLeft(current)) == openSetSet.end()) {
-            openSet.push(pushLeft(current));
-            openSetSet.insert(pushLeft(current));
+    temp = pushLeft(current);
+    openIt = openSetSet.find(temp);
+    if(closedSet.find(temp) == closedSet.end()) {
+        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
+            temp.parent = new Puzzle(current);
+            openSet.push(temp);
+            openSetSet.insert(temp);
         }
     }
-    if(closedSet.find(pushRight(current)) == closedSet.end()) {
-        if(openSetSet.find(pushRight(current)) == openSetSet.end()) {
-            openSet.push(pushRight(current));
-            openSetSet.insert(pushRight(current));
+    temp = pushRight(current);
+    openIt = openSetSet.find(temp);
+    if(closedSet.find(temp) == closedSet.end()) {
+        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
+            temp.parent = new Puzzle(current);
+            openSet.push(temp);
+            openSetSet.insert(temp);
         }
     }
     }
+    return puzzle; // cannot be reached
 }
 
 Puzzle pushUp(Puzzle puzzle) {
