@@ -26,7 +26,9 @@ struct cmp
 };
 
 bool operator<(const Puzzle& lhs, const Puzzle& rhs) {
-    return !(lhs.fscore < rhs.fscore);
+    if(lhs.fscore != rhs.fscore)
+        return (lhs.fscore < rhs.fscore);
+    else return (lhs.boardLayout < rhs.boardLayout);
 }
 
 
@@ -62,65 +64,54 @@ void printPath(Puzzle *puzzle) {
 }
 
 Puzzle aStar(Puzzle puzzle, int numIteration) {
-    std::set<Puzzle, cmp> closedSet;
-    std::priority_queue<Puzzle> openSet;
-    // Update to unordered map?
-    std::set<Puzzle, cmp> openSetSet;
-    Puzzle current(puzzle); 
-    openSet.push(puzzle);
-    while(openSet.size() > 0) {
-        current = openSet.top();
+    std::set<Puzzle> openSet;
+    std::set<Puzzle> closedSet;
 
-        if(current.checkWin()) {
-            std::cout << "Solution found in : " << current.depth << "\nExpected: " << numIteration << std::endl;
-            puzzle = current;
-            break;
-        }
-
-    openSet.pop();
-    if(closedSet.find(current) == closedSet.end())
+    Puzzle current = puzzle;
+    openSet.insert(current);
+    while(!openSet.empty()) {
+        current = *openSet.begin();
+        openSet.erase(openSet.begin());
         closedSet.insert(current);
+        if(current.boardLayout == current.goalLayout) {
+            std::cout << "Solution found in : " << current.depth << "\nExpected: " << numIteration << std::endl;
+            return current;
+        }
+        
+        Puzzle temp(current);
 
-    Puzzle temp(current);
-    std::set<Puzzle>::iterator openIt;
-    temp = pushUp(current);
-    openIt = openSetSet.find(temp);
-    if(closedSet.find(temp) == closedSet.end()) {
-        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
-            temp.parent = new Puzzle(current);
-            openSet.push(temp);
-            openSetSet.insert(temp);
+        for(int i = 0; i < 4; i++) {
+        switch(i) {
+            case 0:
+                temp = pushUp(current);
+                break;
+            case 1:
+                temp = pushDown(current);
+                break;
+            case 2:
+                temp = pushLeft(current);
+                break;
+            case 3:
+                temp = pushRight(current);
+                break;
         }
-    }
-    temp = pushDown(current);
-    openIt = openSetSet.find(temp);
-    if(closedSet.find(temp) == closedSet.end()) {
-        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
-            temp.parent = new Puzzle(current);
-            openSet.push(temp);
-            openSetSet.insert(temp);
+        if(openSet.find(temp) != openSet.end() && (openSet.find(temp)->fscore < temp.fscore)) { // check if temp is in open set or better fscore
+            continue;
         }
-    }
-    temp = pushLeft(current);
-    openIt = openSetSet.find(temp);
-    if(closedSet.find(temp) == closedSet.end()) {
-        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
-            temp.parent = new Puzzle(current);
-            openSet.push(temp);
-            openSetSet.insert(temp);
+        else if((closedSet.find(temp) != closedSet.end()) && (closedSet.find(temp)->fscore < temp.fscore)) { // check if in closed set or better fscore
+            continue;
         }
-    }
-    temp = pushRight(current);
-    openIt = openSetSet.find(temp);
-    if(closedSet.find(temp) == closedSet.end()) {
-        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
+        else {
             temp.parent = new Puzzle(current);
-            openSet.push(temp);
-            openSetSet.insert(temp);
+            openSet.insert(temp);
         }
+        }
+
+
+
+
     }
-    }
-    return puzzle; // cannot be reached
+    return puzzle; //search failed
 }
 
 Puzzle pushUp(Puzzle puzzle) {
