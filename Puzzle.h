@@ -117,7 +117,7 @@ void Puzzle::left() {
 }
 
 void Puzzle::right() {
-    if(playerRow != cols-1) {
+    if(playerCol != cols-1) {
         boardLayout[playerPos] = boardLayout[playerPos+1];
         boardLayout[playerPos+1] = 0;
         playerPos = playerPos + 1;

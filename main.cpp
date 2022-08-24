@@ -45,7 +45,7 @@ int main() {
     for(int i = 1; i < allSamplesVector.size(); i++) {
     Puzzle puzzle(allSamplesVector[i], allSamplesVector[0]);
     Puzzle solved = aStar(puzzle, gSVector[i]);
-    printPath(&solved);
+    //printPath(&solved);
     }
 }
 
