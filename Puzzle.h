@@ -14,7 +14,7 @@ public:
         goalLayout = target;
         heuristic = manDistance();
         fscore = 0;
-        parent = new Puzzle(*this);
+        parent = NULL;
 
         for(int i = 0; i < boardLayout.size(); i++) {
             if(boardLayout[i] == 0) {
