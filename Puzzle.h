@@ -1,3 +1,7 @@
+/*
+Nicholas Vecchio - 20061890
+*/
+
 class Puzzle
 {
 public:
