@@ -62,10 +62,10 @@ void printPath(Puzzle *puzzle) {
 }
 
 Puzzle aStar(Puzzle puzzle, int numIteration) {
-    std::set<Puzzle, cmp> closedSet;
+    std::set<Puzzle> closedSet;
     std::priority_queue<Puzzle> openSet;
     // Update to unordered map?
-    std::set<Puzzle, cmp> openSetSet;
+    std::set<Puzzle> openSetSet;
     Puzzle current(puzzle); 
     openSet.push(puzzle);
     while(openSet.size() > 0) {
