@@ -26,7 +26,9 @@ struct cmp
 };
 
 bool operator<(const Puzzle& lhs, const Puzzle& rhs) {
-    return !(lhs.fscore < rhs.fscore);
+    if(lhs.fscore != rhs.fscore)
+        return (lhs.fscore < rhs.fscore);
+    else return (lhs.boardLayout < rhs.boardLayout);
 }
 
 
@@ -45,7 +47,7 @@ int main() {
     for(int i = 1; i < allSamplesVector.size(); i++) {
     Puzzle puzzle(allSamplesVector[i], allSamplesVector[0]);
     Puzzle solved = aStar(puzzle, gSVector[i]);
-    //printPath(&solved);
+    printPath(&solved);
     }
 }
 
@@ -62,65 +64,52 @@ void printPath(Puzzle *puzzle) {
 }
 
 Puzzle aStar(Puzzle puzzle, int numIteration) {
+    std::set<Puzzle> openSet;
     std::set<Puzzle> closedSet;
-    std::priority_queue<Puzzle> openSet;
-    // Update to unordered map?
-    std::set<Puzzle> openSetSet;
-    Puzzle current(puzzle); 
-    openSet.push(puzzle);
-    while(openSet.size() > 0) {
-        current = openSet.top();
 
-        if(current.checkWin()) {
+    Puzzle current = puzzle;
+    openSet.insert(current);
+    while(!openSet.empty()) {
+        current = *openSet.begin();
+        openSet.erase(openSet.begin());
+        if(current.boardLayout == current.goalLayout) {
             std::cout << "Solution found in : " << current.depth << "\nExpected: " << numIteration << std::endl;
-            puzzle = current;
-            break;
+            return current;
         }
+        
+        Puzzle temp(current);
 
-    openSet.pop();
-    if(closedSet.find(current) == closedSet.end())
+        for(int i = 0; i < 4; i++) {
+        switch(i) {
+            case 0:
+                temp = pushUp(current);
+                break;
+            case 1:
+                temp = pushDown(current);
+                break;
+            case 2:
+                temp = pushLeft(current);
+                break;
+            case 3:
+                temp = pushRight(current);
+                break;
+        }
+        if((openSet.find(temp) != openSet.end()) || (openSet.find(temp) != openSet.end() && (openSet.find(temp)->fscore < temp.fscore))) { 
+            // check if temp is in open set or better fscore
+            continue;
+        }
+        else if((closedSet.find(temp) != closedSet.end()) || (closedSet.find(temp) != closedSet.end() && (closedSet.find(temp)->fscore < temp.fscore))) { 
+            // check if in closed set or better fscore
+            continue;
+        }
+        else {
+            temp.parent = new Puzzle(current);
+            openSet.insert(temp);
+        }
         closedSet.insert(current);
-
-    Puzzle temp(current);
-    std::set<Puzzle>::iterator openIt;
-    temp = pushUp(current);
-    openIt = openSetSet.find(temp);
-    if(closedSet.find(temp) == closedSet.end()) {
-        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
-            temp.parent = new Puzzle(current);
-            openSet.push(temp);
-            openSetSet.insert(temp);
         }
     }
-    temp = pushDown(current);
-    openIt = openSetSet.find(temp);
-    if(closedSet.find(temp) == closedSet.end()) {
-        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
-            temp.parent = new Puzzle(current);
-            openSet.push(temp);
-            openSetSet.insert(temp);
-        }
-    }
-    temp = pushLeft(current);
-    openIt = openSetSet.find(temp);
-    if(closedSet.find(temp) == closedSet.end()) {
-        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
-            temp.parent = new Puzzle(current);
-            openSet.push(temp);
-            openSetSet.insert(temp);
-        }
-    }
-    temp = pushRight(current);
-    openIt = openSetSet.find(temp);
-    if(closedSet.find(temp) == closedSet.end()) {
-        if(openIt == openSetSet.end() || temp.heuristic < openIt->heuristic) {
-            temp.parent = new Puzzle(current);
-            openSet.push(temp);
-            openSetSet.insert(temp);
-        }
-    }
-    }
-    return puzzle; // cannot be reached
+    return puzzle; //search failed
 }
 
 Puzzle pushUp(Puzzle puzzle) {
