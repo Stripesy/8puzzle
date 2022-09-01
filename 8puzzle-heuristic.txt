@@ -1,0 +1,9 @@
+The heuristic used is the manhattan distance, which calculates the total number of spaces each block
+is away from their destination.
+
+In this puzzle, the 0 block is only able to be moved in the four cardinal directions by one block at a time.
+The optimal scenario is to have a complete puzzle bar one block, this would be an MD state of 1.
+Moving to solve this puzzle would have a cost of 1, making it equal to the heuristic.
+
+The rest of the puzzle states are thus sub-optimal and must take more moves than M.D. to get
+the block to the correct position. This the heuristic does not overestimate and is admissible.

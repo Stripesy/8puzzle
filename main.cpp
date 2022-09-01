@@ -49,13 +49,28 @@ int main()
 {
     std::vector<int> gSVector;
     std::vector<std::vector<int>> allSamplesVector = readSamples(gSVector);
-
-    for (int i = 1; i < allSamplesVector.size(); i++)
-    {
-        Puzzle puzzle(allSamplesVector[i], allSamplesVector[0]);
-        Puzzle solved = aStar(puzzle, gSVector[i]);
-        printPath(&solved);
-    }
+    int input;
+    do {
+        std::cout << "Input Puzzle to run. (0 to run all, -1 to exit).\n";
+        std::cin >> input;
+    
+        if(input == 0) {
+            for (int i = 1; i < allSamplesVector.size(); i++)
+            {   
+                Puzzle puzzle(allSamplesVector[i], allSamplesVector[0]);
+                Puzzle solved = aStar(puzzle, gSVector[i]);
+                //printPath(&solved);
+                std::cout << "Solution found in : " << solved.depth << "\nExpected: " << gSVector[i] << std::endl;
+            }
+        }
+        else if (input != -1 && input != 0){
+            Puzzle puzzle(allSamplesVector[input], allSamplesVector[0]);
+            Puzzle solved = aStar(puzzle, gSVector[input]);
+            printPath(&solved);
+            std::cout << "Solution found in : " << solved.depth << "\nExpected: " << gSVector[input] << std::endl;
+        }
+    } while(input != -1);
+    return 0;
 }
 
 void printPath(Puzzle *puzzle)
